@@ -124,6 +124,13 @@ func albumsByArtist(name string) ([]Album, error) {
 		var alb Album
 
 		// alb.ID := 0 >> alb.Title := "" >> alb.Artist := "" >> alb.Price := 0.0
+		// &alb.ID is point telling Scan() exactly where to place found data
+		// & is a reference to a variable, in this case alb
+		// &alb.ID is a memory referencer for Scan() to accurately place correct data from the current row
+		// the arguments of Scan() become pointers and must be placed in exact order from the struct, in this case Album
+		// ex ~> &alb.ID := 0 , is a pointer to Scan() for the current row. When that row is scanned (copied) to alb.ID
+		// alb.ID := 1
+		//so on and so forth
 		if err := rows.Scan(&alb.ID, &alb.Title, &alb.Artist, &alb.Price); err != nil {
 			return nil, fmt.Errorf("albumsByArtist %q: %v", name, err)
 		}
