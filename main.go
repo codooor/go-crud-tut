@@ -130,7 +130,7 @@ func albumsByArtist(name string) ([]Album, error) {
 		// the arguments of Scan() become pointers and must be placed in exact order from the struct, in this case Album
 		// ex ~> &alb.ID := 0 , is a pointer to Scan() for the current row. When that row is scanned (copied) to alb.ID
 		// alb.ID := 1
-		//so on and so forth
+		// alb := Album { id 1 , title 'some title , artist 'some artist', price 14.99}
 		if err := rows.Scan(&alb.ID, &alb.Title, &alb.Artist, &alb.Price); err != nil {
 			return nil, fmt.Errorf("albumsByArtist %q: %v", name, err)
 		}
