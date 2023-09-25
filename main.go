@@ -81,11 +81,21 @@ func albumsByArtist(name string) ([]Album, error) {
 	// important to note the allocation occuring here is nil
 	// since we are unsure of how many structs will be included in the slice - we allow Go to dynamically allocate memory
 	// if I knew I wanted 10 slices of type Album struct I would allocate memory immediately to the slice
-	// ex ~> albums := make([]Album, 0, 10) translates to create a slice of Album with len(0) and an appendable memory, aka cap(10), of 10 slices
+	// ex ~> albums := make([]Album, 0, 10) translates to create a slice of Album with length 0, aka len(0), and an appendable memory, aka cap(10), of 10 slices
 	var albums []Album // declares a variable = to albums that contains slices of type Album struct
 
+	// *************************************
 	// Use a prepared SQL query to fetch data.
+	// Query() is a provided method from the sql driver pkg and ? is a placeholder for value
+	// the provided arg (name) will replace ? after this line has successfully run
+	// placeholders are vital in defending against SQL injection attacks
 	rows, err := db.Query("SELECT * FROM album WHERE artist = ?", name)
+
+	// *************************************
+	// Go wants to run error checks after any statements that can provide an error- in this case a DB call
+	// this is idiomatic in the Go program and shows up often
+	// if this block were to return an error, say a denial of access, it would rep:
+	// albumsByArtist "John Coltrane": Error 1045: Access denied for user 'username'@'localhost' (using password: YES)
 	if err != nil {
 		return nil, fmt.Errorf("albumsByArtist %q: %v", name, err)
 	}
