@@ -77,6 +77,9 @@ func main() {
 
 // albumsByArtist fetches albums based on the artist's name.
 func albumsByArtist(name string) ([]Album, error) {
+
+	// important to note the allocation occuring here is nil
+	// since we are unsure of how many structs will be included in the slice - we allow Go to dynamically allocate memory
 	var albums []Album // declares a variable = to albums that contains slices of type Album struct
 
 	// Use a prepared SQL query to fetch data.
