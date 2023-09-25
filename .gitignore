@@ -1,0 +1,25 @@
+# Binary outputs
+*.exe
+*.out
+*.o
+*.a
+*.so
+
+# Go build outputs
+/bin/
+
+# Dependency directories (if using Go vendor)
+vendor/
+
+# GoLand IDE configuration
+.idea/
+
+# Visual Studio Code configuration
+.vscode/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Application-specific (like configuration files with potentially sensitive info)
+# config.yaml (or whatever your config file might be)
