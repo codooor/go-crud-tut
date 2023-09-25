@@ -81,7 +81,7 @@ func albumsByArtist(name string) ([]Album, error) {
 	// important to note the allocation occuring here is nil
 	// since we are unsure of how many structs will be included in the slice - we allow Go to dynamically allocate memory
 	// if I knew I wanted 10 slices of type Album struct I would allocate memory immediately to the slice
-	// ex ~> albums := make([]Album, 0, 10) translates to create a slice of Album with len(0) and an appendable memory of 10 slices
+	// ex ~> albums := make([]Album, 0, 10) translates to create a slice of Album with len(0) and an appendable memory, aka cap(10), of 10 slices
 	var albums []Album // declares a variable = to albums that contains slices of type Album struct
 
 	// Use a prepared SQL query to fetch data.
