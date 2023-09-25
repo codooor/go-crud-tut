@@ -40,9 +40,9 @@ func main() {
 	}
 
 	// Try to ping the database to ensure connection is alive.
-	pingErr := db.Ping()
+	pingErr := db.Ping() // Verifies if a connection to the database is still alive
 	if pingErr != nil {
-		log.Fatal(pingErr)
+		log.Fatal(pingErr) // Fatal() is a Print() followed by os.Exit() in case of an error
 	}
 	fmt.Println("Connected!")
 
@@ -51,6 +51,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	// PrintF() allows the formatting of strings with placeholders ~ in this case %v , aka verb ,is the placeholder
+	// \n is an escape sequence that reps a newline character- after the output it ensures a linebreak occurs
+	// albums reps what the verb, aka %v, is placeholding
 	fmt.Printf("Albums found: %v\n", albums)
 
 	// Fetch the album with ID 2
@@ -74,7 +77,7 @@ func main() {
 
 // albumsByArtist fetches albums based on the artist's name.
 func albumsByArtist(name string) ([]Album, error) {
-	var albums []Album
+	var albums []Album // declares a variable = to albums that contains slices of type Album struct
 
 	// Use a prepared SQL query to fetch data.
 	rows, err := db.Query("SELECT * FROM album WHERE artist = ?", name)
