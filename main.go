@@ -99,6 +99,11 @@ func albumsByArtist(name string) ([]Album, error) {
 	if err != nil {
 		return nil, fmt.Errorf("albumsByArtist %q: %v", name, err)
 	}
+	// when a db is queried resources are allocated to handle the fetch and result
+	// these resources need to be freed after handling their duties
+	// so rows.Close() frees these resources after a return result of nil
+	// while defer ensures this process occurs after the surrounding func albumsByArtist has finished execution
+	// the core of it is a cleanup action
 	defer rows.Close() // Ensure resources are freed.
 
 	// Loop through all fetched rows.
