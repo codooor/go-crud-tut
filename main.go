@@ -131,10 +131,23 @@ func albumsByArtist(name string) ([]Album, error) {
 		// ex ~> &alb.ID := 0 , is a pointer to Scan() for the current row. When that row is scanned (copied) to alb.ID
 		// alb.ID := 1
 		// alb := Album { id 1 , title 'some title , artist 'some artist', price 14.99}
+		// each iteration of the loop returns to a zero value for all arguments
 		// rows.Scan() takes the read from rows.Next() and writes to the argument pointer addresses
 		if err := rows.Scan(&alb.ID, &alb.Title, &alb.Artist, &alb.Price); err != nil {
+
+			// if the function returns an error at any point during the lifecycle
+			// ErrorF() returns a formatted error string
+			// %q is a quote string which in this case returns the name value
+			// %v is a default format, verb, that in this case placeholds the original error
+			// if this line returned an error it would look something like
+			// albumsByArtist "John Coltrane": Unexpected column count
+
 			return nil, fmt.Errorf("albumsByArtist %q: %v", name, err)
 		}
+
+		// append() is a built in Go func - it appends vals to a slice
+		// append(slice []T, elems ...T) []T
+		// here we are appending the albums slice, with the alb elements written in our above func
 		albums = append(albums, alb)
 	}
 	if err := rows.Err(); err != nil {
