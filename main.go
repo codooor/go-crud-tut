@@ -91,7 +91,6 @@ func albumsByArtist(name string) ([]Album, error) {
 	// placeholders are vital in defending against SQL injection attacks
 	rows, err := db.Query("SELECT * FROM album WHERE artist = ?", name)
 
-	// *************************************
 	// Go wants to run error checks after any statements that can provide an error- in this case a DB call
 	// this is idiomatic in the Go program and shows up often
 	// if this block were to return an error, say a denial of access, it would rep:
@@ -106,8 +105,22 @@ func albumsByArtist(name string) ([]Album, error) {
 	// the core of it is a cleanup action
 	defer rows.Close() // Ensure resources are freed.
 
+	// *************************************
 	// Loop through all fetched rows.
+	// rows.Next() will continue through each result from the set returning true until
+	// there is no more rows in the result set
+	// rows.Next() will return false in that case ending the loop for an exit
+
 	for rows.Next() {
+		// var alb Album is declaring a new alb variable for each row in the return row values
+		// Isolation is utilized here to ensure that data from one row does not leak into another row
+		// so each iteration of this loop starts with a fresh type Album struct assigned to alb
+		// Go is a garbage-collected language
+		// by redeclaring alb for each iteration, memory from the previous iteration is reclaimed by the garbage collector when no longer needed
+		// this becomes of importance in larger database queries
+		// Go utilizes 'Zero Value' for undeclared variables
+		// int := 0 > string := "" > bool := false > slice, map, function, pointers, channels := nil
+		// arrays := zv.val > structs := zv.field , zv.field
 		var alb Album
 		if err := rows.Scan(&alb.ID, &alb.Title, &alb.Artist, &alb.Price); err != nil {
 			return nil, fmt.Errorf("albumsByArtist %q: %v", name, err)
