@@ -150,9 +150,18 @@ func albumsByArtist(name string) ([]Album, error) {
 		// here we are appending the albums slice, with the alb elements written in our above func
 		albums = append(albums, alb)
 	}
+
+	// after the read of Next() in the func we need to check if there were any errors at all during lifecycle
+	// Err() will return the first error,if any, it finds if err != nil
 	if err := rows.Err(); err != nil {
+		// if theres indeed an error return nil for albums slice
+		// then return a formatted error with placeholders and then the name the error occurred on and the identical error for that name
 		return nil, fmt.Errorf("albumsByArtist %q: %v", name, err)
 	}
+
+	// if the func works without any errors
+	// return the albums slice that match the query
+	// return nil for any error handling throughout the lifecycle of this func
 	return albums, nil
 }
 
