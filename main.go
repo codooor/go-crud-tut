@@ -110,7 +110,7 @@ func albumsByArtist(name string) ([]Album, error) {
 	// rows.Next() will continue through each result from the set returning true until
 	// there is no more rows in the result set
 	// rows.Next() will return false in that case ending the loop for an exit
-
+	// rows.Next() sets up a read when true
 	for rows.Next() {
 		// var alb Album is declaring a new alb variable for each row in the return row values
 		// Isolation is utilized here to ensure that data from one row does not leak into another row
@@ -131,6 +131,7 @@ func albumsByArtist(name string) ([]Album, error) {
 		// ex ~> &alb.ID := 0 , is a pointer to Scan() for the current row. When that row is scanned (copied) to alb.ID
 		// alb.ID := 1
 		// alb := Album { id 1 , title 'some title , artist 'some artist', price 14.99}
+		// rows.Scan() takes the read from rows.Next() and writes to the argument pointer addresses
 		if err := rows.Scan(&alb.ID, &alb.Title, &alb.Artist, &alb.Price); err != nil {
 			return nil, fmt.Errorf("albumsByArtist %q: %v", name, err)
 		}
