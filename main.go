@@ -9,8 +9,10 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
+// Declaring a global DB variable to be used throughout the program.
 var db *sql.DB
 
+// Album struct represents a row in the "album" table.
 type Album struct {
 	ID     int64
 	Title  string
@@ -19,41 +21,46 @@ type Album struct {
 }
 
 func main() {
-	// Capture Connection properties.
+	// Capture connection properties. Using environment variables is a good way
+	// to keep sensitive information out of the code.
 	cfg := mysql.Config{
-		User:                 os.Getenv("DBUSER"),
-		Passwd:               os.Getenv("DBPASS"),
-		Net:                  "tcp",
-		Addr:                 "127.0.0.1:3306",
-		DBName:               "recordings",
+		User:                 os.Getenv("DBUSER"), // Fetch database user from environment variable
+		Passwd:               os.Getenv("DBPASS"), // Fetch database password from environment variable
+		Net:                  "tcp",               // Network type TCP (most common)
+		Addr:                 "127.0.0.1:3306",    // Address and port of the database server
+		DBName:               "recordings",        // Name of the database
 		AllowNativePasswords: true,
 	}
-	// Get a database handle.
+
+	// Attempt to connect to the database using the above configuration.
 	var err error
 	db, err = sql.Open("mysql", cfg.FormatDSN())
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(err) // If there's an error, it will stop the program.
 	}
 
+	// Try to ping the database to ensure connection is alive.
 	pingErr := db.Ping()
 	if pingErr != nil {
 		log.Fatal(pingErr)
 	}
 	fmt.Println("Connected!")
 
+	// Fetch albums with the artist "John Coltrane"
 	albums, err := albumsByArtist("John Coltrane")
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Printf("Albums found: %v\n", albums)
 
-	// Hard-code ID 2 here to test the query.
+	// Fetch the album with ID 2
 	alb, err := albumByID(2)
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Printf("Album found: %v\n", alb)
 
+	// Insert a new album into the database and fetch its ID
 	albID, err := addAlbum(Album{
 		Title:  "The Modern Sound of Betty Carter",
 		Artist: "Betty Carter",
@@ -65,19 +72,18 @@ func main() {
 	fmt.Printf("ID of added album: %v\n", albID)
 }
 
-// albumsByArtist queries for albumes that have the specific artist name
-
+// albumsByArtist fetches albums based on the artist's name.
 func albumsByArtist(name string) ([]Album, error) {
-	// albums slice to hold data from the return row values
 	var albums []Album
 
+	// Use a prepared SQL query to fetch data.
 	rows, err := db.Query("SELECT * FROM album WHERE artist = ?", name)
 	if err != nil {
 		return nil, fmt.Errorf("albumsByArtist %q: %v", name, err)
 	}
-	defer rows.Close()
+	defer rows.Close() // Ensure resources are freed.
 
-	// loop through rows, using Scan to assign column data to struct fields.
+	// Loop through all fetched rows.
 	for rows.Next() {
 		var alb Album
 		if err := rows.Scan(&alb.ID, &alb.Title, &alb.Artist, &alb.Price); err != nil {
@@ -91,14 +97,14 @@ func albumsByArtist(name string) ([]Album, error) {
 	return albums, nil
 }
 
-// albumByID queries for the album with the specified ID.
+// albumByID fetches a single album based on its ID.
 func albumByID(id int64) (Album, error) {
-	// An album to hold data from the returned row.
 	var alb Album
 
+	// Fetch only one row based on album ID.
 	row := db.QueryRow("SELECT * FROM album WHERE id = ?", id)
 	if err := row.Scan(&alb.ID, &alb.Title, &alb.Artist, &alb.Price); err != nil {
-		if err == sql.ErrNoRows {
+		if err == sql.ErrNoRows { // If no rows are returned, it means no such album exists.
 			return alb, fmt.Errorf("albumsById %d: no such album", id)
 		}
 		return alb, fmt.Errorf("albumsById %d: %v", id, err)
@@ -106,14 +112,13 @@ func albumByID(id int64) (Album, error) {
 	return alb, nil
 }
 
-// addAlbum adds the specified album to the database,
-// returning the album ID of the new entry
+// addAlbum inserts a new album and returns its ID.
 func addAlbum(alb Album) (int64, error) {
 	result, err := db.Exec("INSERT INTO album (title, artist, price) VALUES (?, ?, ?)", alb.Title, alb.Artist, alb.Price)
 	if err != nil {
 		return 0, fmt.Errorf("addAlbum: %v", err)
 	}
-	id, err := result.LastInsertId()
+	id, err := result.LastInsertId() // Fetch the last inserted ID.
 	if err != nil {
 		return 0, fmt.Errorf("addAlbum: %v", err)
 	}
