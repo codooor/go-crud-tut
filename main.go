@@ -119,9 +119,11 @@ func albumsByArtist(name string) ([]Album, error) {
 		// by redeclaring alb for each iteration, memory from the previous iteration is reclaimed by the garbage collector when no longer needed
 		// this becomes of importance in larger database queries
 		// Go utilizes 'Zero Value' for undeclared variables
-		// int := 0 > string := "" > bool := false > slice, map, function, pointers, channels := nil
+		// int := 0 > float64 := 0.0 > string := "" > bool := false > slice, map, function, pointers, channels := nil
 		// arrays := zv.val > structs := zv.field , zv.field
 		var alb Album
+
+		// alb.ID := 0 >> alb.Title := "" >> alb.Artist := "" >> alb.Price := 0.0
 		if err := rows.Scan(&alb.ID, &alb.Title, &alb.Artist, &alb.Price); err != nil {
 			return nil, fmt.Errorf("albumsByArtist %q: %v", name, err)
 		}
